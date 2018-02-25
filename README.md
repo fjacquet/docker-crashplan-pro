@@ -1,5 +1,5 @@
 # Docker container for CrashPlan PRO
-[![Docker Automated build](https://img.shields.io/docker/automated/jlesage/crashplan-pro.svg)](https://hub.docker.com/r/jlesage/crashplan-pro/) [![Docker Image](https://images.microbadger.com/badges/image/jlesage/crashplan-pro.svg)](http://microbadger.com/#/images/jlesage/crashplan-pro) [![Build Status](https://travis-ci.org/jlesage/docker-crashplan-pro.svg?branch=master)](https://travis-ci.org/jlesage/docker-crashplan-pro) [![GitHub Release](https://img.shields.io/github/release/jlesage/docker-crashplan-pro.svg)](https://github.com/jlesage/docker-crashplan-pro/releases/latest) [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/JocelynLeSage)
+[![Docker Automated build](https://img.shields.io/docker/automated/fjacquet/crashplan-pro.svg)](https://hub.docker.com/r/fjacquet/crashplan-pro/) [![Docker Image](https://images.microbadger.com/badges/image/fjacquet/crashplan-pro.svg)](http://microbadger.com/#/images/fjacquet/crashplan-pro) [![Build Status](https://travis-ci.org/fjacquet/docker-crashplan-pro.svg?branch=master)](https://travis-ci.org/fjacquet/docker-crashplan-pro) [![GitHub Release](https://img.shields.io/github/release/fjacquet/docker-crashplan-pro.svg)](https://github.com/fjacquet/docker-crashplan-pro/releases/latest) [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/JocelynLeSage)
 
 This is a Docker container for CrashPlan PRO.
 
@@ -12,7 +12,7 @@ The GUI of the application is accessed through a modern web browser (no installa
 
 ---
 
-[![CrashPlan PRO logo](https://images.weserv.nl/?url=raw.githubusercontent.com/jlesage/docker-templates/master/jlesage/images/crashplan-pro-icon.png&w=200)](https://www.crashplan.com/en-us/business/)[![CrashPlan PRO](https://dummyimage.com/400x110/ffffff/575757&text=CrashPlan+PRO)](https://www.crashplan.com/en-us/business/)
+[![CrashPlan PRO logo](https://images.weserv.nl/?url=raw.githubusercontent.com/fjacquet/docker-templates/master/fjacquet/images/crashplan-pro-icon.png&w=200)](https://www.crashplan.com/en-us/business/)[![CrashPlan PRO](https://dummyimage.com/400x110/ffffff/575757&text=CrashPlan+PRO)](https://www.crashplan.com/en-us/business/)
 
 CrashPlan offers the most comprehensive online backup solution to tens of
 thousands of businesses around the world.  The highly secure, automatic and
@@ -63,7 +63,7 @@ docker run -d \
     -p 5800:5800 \
     -v /docker/appdata/crashplan-pro:/config:rw \
     -v $HOME:/storage:ro \
-    jlesage/crashplan-pro
+    fjacquet/crashplan-pro
 ```
 
 Where:
@@ -81,7 +81,7 @@ docker run [-d] \
     [-e <VARIABLE_NAME>=<VALUE>]... \
     [-v <HOST_DIR>:<CONTAINER_DIR>[:PERMISSIONS]]... \
     [-p <HOST_PORT>:<CONTAINER_PORT>]... \
-    jlesage/crashplan-pro
+    fjacquet/crashplan-pro
 ```
 | Parameter | Description |
 |-----------|-------------|
@@ -189,7 +189,7 @@ the Docker image, the following steps can be followed:
 
   1. Fetch the latest image:
 ```
-docker pull jlesage/crashplan-pro
+docker pull fjacquet/crashplan-pro
 ```
   2. Stop the container:
 ```
@@ -330,13 +330,13 @@ users.
 
 To perform the transition, you need to:
   - [Migrate your account].
-  - If *CrashPlan for Home* installation is provided by the `jlesage/crashplan`
+  - If *CrashPlan for Home* installation is provided by the `fjacquet/crashplan`
     Docker container:
-    - Keep the configuration directory used by `jlesage/crashplan` container
+    - Keep the configuration directory used by `fjacquet/crashplan` container
       (i.e. the host directory mapped to `/config`).
     - Run this container by re-using the same configuration directory.  To do
       so, map the `/config` folder to the same host directory used by the
-      `jlesage/crashplan` container.
+      `fjacquet/crashplan` container.
   - Else, for all other installations (Windows, Linux, Mac, other Docker
     containers):
     - Start this container, by making sure the configuration directory is
@@ -516,4 +516,4 @@ server {
 Having troubles with the container or have questions?  Please
 [create a new issue].
 
-[create a new issue]: https://github.com/jlesage/docker-crashplan-pro/issues
+[create a new issue]: https://github.com/fjacquet/docker-crashplan-pro/issues
