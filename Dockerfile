@@ -1,7 +1,7 @@
 #
 # crashplan Dockerfile
 #
-# https://github.com/jlesage/docker-crashplan
+# https://github.com/fjacquet/docker-crashplan
 #
 
 # Pull base image.
@@ -21,6 +21,8 @@ WORKDIR /tmp
 
 # Install CrashPlan.
 RUN \
+    echo "@edge http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories && \
+    add-pkg  gtk+2.0  libxscrnsaver  nss  eudev  gconf  libselinux@edge yad  bc && \
     add-pkg --virtual build-dependencies cpio curl && \
     echo "Installing CrashPlan PRO..." && \
     # Download CrashPlan.
@@ -74,20 +76,6 @@ RUN  \
     # Save the current CrashPlan version.
     echo "${CRASHPLANPRO_VERSION}" > /defaults/cp_version
 
-# Install dependencies.
-RUN \
-    echo "@edge http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories && \
-    add-pkg \
-        gtk+2.0 \
-        libxscrnsaver \
-        nss \
-        eudev \
-        gconf \
-        libselinux@edge \
-        # For the monitor.
-        yad \
-        bc
-
 # Adjust the openbox config.
 RUN \
     # Maximize only the main/initial window.
@@ -124,7 +112,7 @@ VOLUME ["/storage"]
 # Metadata.
 LABEL \
       org.label-schema.name="crashplan-pro" \
-      org.label-schema.description="Docker container for CrashPlan PRO" \
+      org.label-schema.description="Docker container for CrashPlan PRO for synology" \
       org.label-schema.version="unknown" \
-      org.label-schema.vcs-url="https://github.com/jlesage/docker-crashplan-pro" \
+      org.label-schema.vcs-url="https://github.com/fjacquet/docker-crashplan-pro" \
       org.label-schema.schema-version="1.0"
