@@ -1,7 +1,7 @@
 # Docker container for CrashPlan PRO
 [![Docker Automated build](https://img.shields.io/docker/automated/fjacquet/crashplan-pro.svg)](https://hub.docker.com/r/fjacquet/crashplan-pro/) 
 [![Docker Image](https://images.microbadger.com/badges/image/fjacquet/crashplan-pro.svg)](https://microbadger.com/images/fjacquet/crashplan-pro) 
-[![Build Status](https://travis-ci.org/fjacquet/crashplan-pro.svg?branch=master)](https://travis-ci.org/fjacquet/crashplan-pro) 
+[![Build Status](https://travis-ci.org/fjacquet/docker-crashplan-pro.svg?branch=master)](https://travis-ci.org/fjacquet/docker-crashplan-pro) 
 [![GitHub Release](https://img.shields.io/github/release/fjacquet/crashplan-pro.svg)](https://github.com/fjacquet/crashplan-pro/releases/latest) 
 
 This is a Docker container for CrashPlan SMB.
