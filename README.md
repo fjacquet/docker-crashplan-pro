@@ -1,16 +1,12 @@
 # Docker container for CrashPlan PRO
-[![Docker Automated build](https://img.shields.io/docker/automated/fjacquet/crashplan-pro.svg)](https://hub.docker.com/r/fjacquet/docker-crashplan-pro/) [![Docker Image](https://images.microbadger.com/badges/image/fjacquet/docker-crashplan-pro.svg)](http://microbadger.com/#/images/fjacquet/docker-crashplan-pro) [![Build Status](https://travis-ci.org/fjacquet/docker-crashplan-pro.svg?branch=master)](https://travis-ci.org/fjacquet/docker-crashplan-pro) [![GitHub Release](https://img.shields.io/github/release/fjacquet/docker-crashplan-pro.svg)](https://github.com/fjacquet/docker-crashplan-pro/releases/latest) 
+[![Docker Automated build](https://img.shields.io/docker/automated/fjacquet/crashplan-pro.svg)](https://hub.docker.com/r/fjacquet/crashplan-pro/) 
+[![Docker Image](https://images.microbadger.com/badges/image/fjacquet/crashplan-pro.svg)](https://microbadger.com/images/fjacquet/crashplan-pro) 
+[![Build Status](https://travis-ci.org/fjacquet/crashplan-pro.svg?branch=master)](https://travis-ci.org/fjacquet/crashplan-pro) 
+[![GitHub Release](https://img.shields.io/github/release/fjacquet/crashplan-pro.svg)](https://github.com/fjacquet/crashplan-pro/releases/latest) 
 
-This is a Docker container for CrashPlan PRO.
+This is a Docker container for CrashPlan SMB.
 
 The GUI of the application is accessed through a modern web browser (no installation or configuration needed on client side) or via any VNC client.
-
-> **_IMPORTANT_**: This container can be used to migrate from *CrashPlan for 
-> Home*.  Make sure to read the
-> [Migrating From CrashPlan for Home](#migrating-from-crashplan-for-home)
-> section for more details.
-
----
 
 [![CrashPlan SMB logo](https://www.crashplan.com/en-us/wp-content/uploads/sites/2/2017/08/CrashPlan-logos_color.svg)](https://www.crashplan.com/en-us/business/)
 
@@ -23,7 +19,7 @@ is protected and easily accessible.
 
 ## Table of Content
 
-   * [Docker container for CrashPlan PRO](#docker-container-for-crashplan-pro)
+   * [Docker container for CrashPlan SMB](#docker-container-for-crashplan-pro)
       * [Table of Content](#table-of-content)
       * [Quick Start](#quick-start)
       * [Usage](#usage)
@@ -453,11 +449,11 @@ server {
 	server_name crashplan-pro.domain.tld;
 
 	location / {
-	        proxy_pass http://docker-crashplan-pro;
+	        proxy_pass http://crashplan-pro;
 	}
 
 	location /websockify {
-		proxy_pass http://docker-crashplan-pro;
+		proxy_pass http://crashplan-pro;
 		proxy_http_version 1.1;
 		proxy_set_header Upgrade $http_upgrade;
 		proxy_set_header Connection $connection_upgrade;
@@ -498,9 +494,9 @@ server {
 
 	location = /crashplan-pro {return 301 $scheme://$http_host/crashplan-pro/;}
 	location /crashplan-pro/ {
-		proxy_pass http://docker-crashplan-pro/;
+		proxy_pass http://crashplan-pro/;
 		location /crashplan-pro/websockify {
-			proxy_pass http://docker-crashplan-pro/websockify/;
+			proxy_pass http://crashplan-pro/websockify/;
 			proxy_http_version 1.1;
 			proxy_set_header Upgrade $http_upgrade;
 			proxy_set_header Connection $connection_upgrade;
@@ -516,4 +512,4 @@ server {
 Having troubles with the container or have questions?  Please
 [create a new issue].
 
-[create a new issue]: https://github.com/fjacquet/docker-crashplan-pro/issues
+[create a new issue]: https://github.com/fjacquet/crashplan-pro/issues

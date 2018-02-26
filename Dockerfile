@@ -1,7 +1,7 @@
 #
 # crashplan Dockerfile
 #
-# https://github.com/fjacquet/docker-crashplan
+# https://github.com/fjacquet/crashplan-pro
 #
 
 # Pull base image.
@@ -114,5 +114,5 @@ LABEL \
       org.label-schema.name="crashplan-pro" \
       org.label-schema.description="Docker container for CrashPlan PRO for synology" \
       org.label-schema.version="unknown" \
-      org.label-schema.vcs-url="https://github.com/fjacquet/docker-crashplan-pro" \
+      org.label-schema.vcs-url="https://github.com/fjacquet/crashplan-pro" \
       org.label-schema.schema-version="1.0"
