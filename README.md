@@ -1,5 +1,5 @@
 # Docker container for CrashPlan PRO
-[![Docker Automated build](https://img.shields.io/docker/automated/fjacquet/crashplan-pro.svg)](https://hub.docker.com/r/fjacquet/crashplan-pro/) [![Docker Image](https://images.microbadger.com/badges/image/fjacquet/crashplan-pro.svg)](http://microbadger.com/#/images/fjacquet/crashplan-pro) [![Build Status](https://travis-ci.org/fjacquet/docker-crashplan-pro.svg?branch=master)](https://travis-ci.org/fjacquet/docker-crashplan-pro) [![GitHub Release](https://img.shields.io/github/release/fjacquet/docker-crashplan-pro.svg)](https://github.com/fjacquet/docker-crashplan-pro/releases/latest) [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/JocelynLeSage)
+[![Docker Automated build](https://img.shields.io/docker/automated/fjacquet/crashplan-pro.svg)](https://hub.docker.com/r/fjacquet/docker-crashplan-pro/) [![Docker Image](https://images.microbadger.com/badges/image/fjacquet/docker-crashplan-pro.svg)](http://microbadger.com/#/images/fjacquet/docker-crashplan-pro) [![Build Status](https://travis-ci.org/fjacquet/docker-crashplan-pro.svg?branch=master)](https://travis-ci.org/fjacquet/docker-crashplan-pro) [![GitHub Release](https://img.shields.io/github/release/fjacquet/docker-crashplan-pro.svg)](https://github.com/fjacquet/docker-crashplan-pro/releases/latest) 
 
 This is a Docker container for CrashPlan PRO.
 
@@ -12,7 +12,7 @@ The GUI of the application is accessed through a modern web browser (no installa
 
 ---
 
-[![CrashPlan PRO logo](https://images.weserv.nl/?url=raw.githubusercontent.com/fjacquet/docker-templates/master/fjacquet/images/crashplan-pro-icon.png&w=200)](https://www.crashplan.com/en-us/business/)[![CrashPlan PRO](https://dummyimage.com/400x110/ffffff/575757&text=CrashPlan+PRO)](https://www.crashplan.com/en-us/business/)
+[![CrashPlan SMB logo](https://www.crashplan.com/en-us/wp-content/uploads/sites/2/2017/08/CrashPlan-logos_color.svg)](https://www.crashplan.com/en-us/business/)
 
 CrashPlan offers the most comprehensive online backup solution to tens of
 thousands of businesses around the world.  The highly secure, automatic and
