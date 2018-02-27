@@ -23,7 +23,8 @@ WORKDIR /tmp
 RUN \
     echo "@edge http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories && \
     add-pkg  gtk+2.0  libxscrnsaver  nss  eudev  gconf  libselinux@edge yad  bc && \
-    add-pkg --virtual build-dependencies cpio curl && \
+    add-pkg --virtual build-dependencies cpio curl
+RUN \
     echo "Installing CrashPlan PRO..." && \
     # Download CrashPlan.
     curl -# -L ${CRASHPLANPRO_URL} | tar -xz && \
@@ -43,7 +44,8 @@ RUN \
     mkdir -p /usr/local/var/crashplan && \
     # Prevent automatic updates.
     rm -r /usr/local/crashplan/upgrade && \
-    touch /usr/local/crashplan/upgrade && chmod 400 /usr/local/crashplan/upgrade && \
+    touch /usr/local/crashplan/upgrade && \
+    chmod 400 /usr/local/crashplan/upgrade && \
     # The configuration directory should be stored outside the container.
     ln -s /config/conf $TARGETDIR/conf && \
     # The run.conf file should be stored outside the container.
@@ -108,6 +110,7 @@ ENV S6_WAIT_FOR_SERVICE_MAXTIME=10000 \
 # Define mountable directories.
 VOLUME ["/config"]
 VOLUME ["/storage"]
+VOLUME ["/volume1"]
 
 # Metadata.
 LABEL \
