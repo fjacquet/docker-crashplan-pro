@@ -109,8 +109,8 @@ RUN  \
     echo "${CRASHPLANPRO_VERSION}" > /etc/cp_version
 
 
-ADD crashplan-pro.sh /crashplan-pro.sh
-ADD startup.sh /startup.sh
+COPY crashplan-pro.sh /crashplan-pro.sh
+COPY startup.sh /startup.sh
 RUN chmod 0755 /startup.sh 
     
-ENTRYPOINT /startup.sh && bash
+CMD /startup.sh && /bin/bash
