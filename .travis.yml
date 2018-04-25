@@ -9,9 +9,9 @@ language: generic
 services:
   - docker
 
-before_script:
-  - echo "Validating Dockerfile..."
-  - docker run --rm -v "$(pwd)/Dockerfile:/Dockerfile:ro" redcoolbeans/dockerlint:latest
+# before_script:
+#   - echo "Validating Dockerfile..."
+#   - docker run --rm -v "$(pwd)/Dockerfile:/Dockerfile:ro" redcoolbeans/dockerlint:latest
 
 script:
   - echo "Starting build of Docker image..."

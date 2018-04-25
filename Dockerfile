@@ -47,7 +47,6 @@ WORKDIR /tmp
 # Install CrashPlan.
 RUN \
     echo "Installing CrashPlanSmb_${CRASHPLANPRO_VERSION}..." && \
-    # Download CrashPlan.
     curl -# -L ${CRASHPLANPRO_URL} | tar -xz && \
     mkdir -p ${TARGETDIR} && \
     cd ${TARGETDIR}   && \
@@ -55,7 +54,7 @@ RUN \
     cat $(ls /tmp/crashplan-install/*.cpi) | gzip -d -c - | cpio -i --no-preserve-owner && \
     mv "${TARGETDIR}"/*.asar "${TARGETDIR}/electron/resources" && \
     chmod 755 "${TARGETDIR}/electron/crashplan" 
-    # Keep a copy of the default config.
+# Keep a copy of the default config.
 RUN \    
     mkdir -p /defaults && \
     mv ${TARGETDIR}/conf /etc/conf && \
