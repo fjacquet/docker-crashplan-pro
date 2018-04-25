@@ -1,4 +1,4 @@
-#!/usr/bin/with-contenv sh
+#!/bin/bash
 
 set -e # Exit immediately if a command exits with a non-zero status.
 set -u # Treat unset variables as an error.
@@ -13,6 +13,14 @@ get_cp_max_mem() {
     fi
 }
 
+# Make sure required directories exist.
+mkdir -p /config/bin
+mkdir -p /config/log
+mkdir -p /config/cache
+mkdir -p /config/var
+mkdir -p /config/repository
+mkdir -p /config/repository/metadata
+
 # Generate machine id.
 if [ ! -f /config/machine-id ]; then
     log "generating machine-id..."
@@ -20,33 +28,27 @@ if [ ! -f /config/machine-id ]; then
 fi
 
 # Set a home directory in passwd, needed by the engine.
-sed-patch "s|app:x:$USER_ID:$GROUP_ID::/dev/null:|app:x:$USER_ID:$GROUP_ID::/config:|" /etc/passwd && \
+sed -i "s|app:x:0:$0::/dev/null:|app:x:0:0::/config:|" /etc/passwd 
 
-# Make sure required directories exist.
-mkdir -p /config/bin
-mkdir -p /config/log
-mkdir -p /config/cache
-mkdir -p /config/var
-mkdir -p /config/repository
 
 # Determine if it's a first/initial installation or an upgrade.
 FIRST_INSTALL=0
 UPGRADE=0
 if [ ! -d /config/conf ]; then
-    log "handling initial run..."
+    echo  "handling initial run..."
     FIRST_INSTALL=1
 elif [ ! -f /config/cp_version ]; then
-    log "handling upgrade to CrashPlan version $(cat /defaults/cp_version)..."
+    echo "handling upgrade to CrashPlan version $(cat /defaults/cp_version)..."
     UPGRADE=1
 elif [ "$(cat /config/cp_version)" != "$(cat /defaults/cp_version)" ]; then
-    log "handling upgrade from CrashPlan version $(cat /config/cp_version) to $(cat /defaults/cp_version)..."
+    echo "handling upgrade from CrashPlan version $(cat /config/cp_version) to $(cat /defaults/cp_version)..."
     UPGRADE=1
 fi
 
 # Install defaults.
 if [ "$FIRST_INSTALL" -eq 1 ] || [ "$UPGRADE" -eq 1 ]; then
     # Copy default config files.
-    cp -r /defaults/conf /config/
+    cp -r /etc/conf /config/
 
     # Copy run.conf.
     # NOTE: Remember the maximum allocated memory setting before overwritting.
@@ -56,10 +58,10 @@ if [ "$FIRST_INSTALL" -eq 1 ] || [ "$UPGRADE" -eq 1 ]; then
             CRASHPLAN_SRV_MAX_MEM="$CUR_MEM_VAL";
         fi
     fi
-    cp /defaults/run.conf /config/bin/run.conf
+    cp /etc/run.conf /config/bin/run.conf
 
     # Set the current CrashPlan version.
-    cp /defaults/cp_version /config/
+    cp /etc/cp_version /config/
 
     # Clear the cache.
     rm -rf /config/cache/*
@@ -69,14 +71,14 @@ fi
 if [ "${CRASHPLAN_SRV_MAX_MEM:-UNSET}" != "UNSET" ]; then
   if ! echo "$CRASHPLAN_SRV_MAX_MEM" | grep -q "^[0-9]\+[g|G|m|M|k|K]\?$"
   then
-    log "ERROR: invalid value for CRASHPLAN_SRV_MAX_MEM variable: '$CRASHPLAN_SRV_MAX_MEM'."
+    echo "ERROR: invalid value for CRASHPLAN_SRV_MAX_MEM variable: '$CRASHPLAN_SRV_MAX_MEM'."
     exit 1
   fi
 
   CUR_MEM_VAL="$(get_cp_max_mem /config/bin/run.conf)"
   if [ "${CUR_MEM_VAL:-UNSET}" != "UNSET" ] && [ "$CRASHPLAN_SRV_MAX_MEM" != "$CUR_MEM_VAL" ]
   then
-    log "updating CrashPlan Engine maximum memory from $CUR_MEM_VAL to $CRASHPLAN_SRV_MAX_MEM."
+    echo "updating CrashPlan Engine maximum memory from $CUR_MEM_VAL to $CRASHPLAN_SRV_MAX_MEM."
     sed -i "s/^\(SRV_JAVA_OPTS=.* -Xmx\)[0-9]\+[g|G|m|M|k|K]\? /\1$CRASHPLAN_SRV_MAX_MEM /" /config/bin/run.conf
   fi
 fi
@@ -107,6 +109,6 @@ do
 done
 
 # Take ownership of the config directory content.
-chown -R $USER_ID:$GROUP_ID /config/*
+chown -R 0:0  /config/*
 
 # vim: set ft=sh :

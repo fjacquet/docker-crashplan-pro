@@ -1,1 +1,0 @@
-The application crashed because of lack of memory.  More memory needs to be allocated.  This can be done via the CRASHPLAN_SRV_MAX_MEM environment variable.
