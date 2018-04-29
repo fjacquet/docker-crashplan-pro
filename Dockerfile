@@ -16,6 +16,7 @@ LABEL \
 ARG CRASHPLANPRO_VERSION=6.7.1
 ARG CRASHPLANPRO_TIMESTAMP=1512021600671
 ARG CRASHPLANPRO_BUILD=4615
+
 # Define software download URLs
 ARG CRASHPLANPRO_URL=https://web-eam-msp.crashplanpro.com/client/installers/CrashPlanSmb_${CRASHPLANPRO_VERSION}_${CRASHPLANPRO_TIMESTAMP}_${CRASHPLANPRO_BUILD}_Linux.tgz
 # Define container build variables
@@ -33,10 +34,13 @@ ENV APP_NAME="CrashPlan for Small Business"
 ENV KEEP_APP_RUNNING=1 
 ENV CRASHPLAN_DIR="${TARGETDIR}"
 ENV JAVACOMMON="${TARGETDIR}/jre/bin/java"
+ENV PATH="${TARGETDIR}/electron/:${PATH}"
+ENV USER_ID=1021 
+ENV GROUP_ID=101 
 
 WORKDIR /root
 
-RUN  \
+RUN \
     chmod 0755 /startup.sh && \
     apt-get update -y && \
     apt-get install -y  git x11vnc python python-numpy unzip xvfb openbox cpio curl sed libgconf2-4 net-tools openjdk-8-jdk  && \
@@ -56,15 +60,15 @@ RUN  \
 
 # Installing JRE...
 
-RUN \
-    . /tmp/crashplan-install/install.defaults && \
+RUN . "/tmp/crashplan-install/install.defaults" && \
     curl -# -L "$JRE_X64_DOWNLOAD_URL" | tar -xz -C "$TARGETDIR" && \
     chown -R root:root "$TARGETDIR/jre"
 
 WORKDIR /usr/local/crashplan
 
-RUN \
-    cat "$(ls /tmp/crashplan-install/*.cpi)" | gzip -d -c - | cpio -i --no-preserve-owner && \
+RUN mv "/tmp/crashplan-install/CrashPlanSmb_${CRASHPLANPRO_VERSION}.cpi" "/tmp/crashplan-install/CrashPlanSmb_${CRASHPLANPRO_VERSION}.cpio.gz" && \
+    gunzip "/tmp/crashplan-install/CrashPlanSmb_${CRASHPLANPRO_VERSION}.cpio.gz"  && \
+    cpio -i --verbose --no-preserve-owner <  "/tmp/crashplan-install/CrashPlanSmb_${CRASHPLANPRO_VERSION}.cpio" && \
     mv "${TARGETDIR}/app.asar" "${TARGETDIR}/electron/resources" && \
     chmod 755 "${TARGETDIR}/electron/crashplan"
 

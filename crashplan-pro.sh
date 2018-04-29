@@ -28,8 +28,8 @@ if [ ! -f /config/machine-id ]; then
 fi
 
 # Set a home directory in passwd, needed by the engine.
-sed -i "s|app:x:0:$0::/dev/null:|app:x:0:0::/config:|" /etc/passwd 
-
+# sed -i "s|app:x:$USER_ID:$GROUP_ID::/dev/null:|app:x:0:0::/config:|" /etc/passwd 
+echo "app:x:$USER_ID:$GROUP_ID:/config" >> /etc/passwd 
 
 # Determine if it's a first/initial installation or an upgrade.
 FIRST_INSTALL=0
@@ -40,8 +40,8 @@ if [ ! -d /config/conf ]; then
 elif [ ! -f /config/cp_version ]; then
     echo "handling upgrade to CrashPlan version $(cat /defaults/cp_version)..."
     UPGRADE=1
-elif [ "$(cat /config/cp_version)" != "$(cat /defaults/cp_version)" ]; then
-    echo "handling upgrade from CrashPlan version $(cat /config/cp_version) to $(cat /defaults/cp_version)..."
+elif [ "$(cat /config/cp_version)" != "$(cat /etc/cp_version)" ]; then
+    echo "handling upgrade from CrashPlan version $(cat /config/cp_version) to $(cat /etc/cp_version)..."
     UPGRADE=1
 fi
 
