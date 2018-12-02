@@ -3,97 +3,134 @@
 #
 # https://github.com/fjacquet/docker-crashplan-pro
 #
-FROM ubuntu:bionic
+
+# Pull base image.
+FROM jlesage/baseimage-gui:alpine-3.8-glibc-v3.5.1
+
+# Define software versions.
+ARG CRASHPLANPRO_VERSION=6.8.3
+ARG CRASHPLANPRO_TIMESTAMP=1525200006683
+ARG CRASHPLANPRO_BUILD=951
+
+# Define software download URLs.
+# NOTE: Do not use the folllwing URL, as it may not point to the latest build number:
+# https://download.code42.com/installs/linux/install/CrashPlanSmb/CrashPlanSmb_${CRASHPLANPRO_VERSION}_Linux.tgz
+ARG CRASHPLANPRO_URL=https://web-eam-msp.crashplanpro.com/client/installers/CrashPlanSmb_${CRASHPLANPRO_VERSION}_${CRASHPLANPRO_TIMESTAMP}_${CRASHPLANPRO_BUILD}_Linux.tgz
+
+# Define container build variables.
+ARG TARGETDIR=/usr/local/crashplan
+
+# Define working directory.
+WORKDIR /tmp
+
+# Install CrashPlan.
+RUN \
+    add-pkg --virtual build-dependencies cpio curl && \
+    echo "Installing CrashPlan PRO..." && \
+    # Download CrashPlan.
+    curl -# -L ${CRASHPLANPRO_URL} | tar -xz && \
+    mkdir -p ${TARGETDIR} && \
+    # Extract CrashPlan.
+    cat $(ls crashplan-install/*.cpi) | gzip -d -c - | cpio -i --no-preserve-owner --directory=${TARGETDIR} && \
+    mv "${TARGETDIR}"/*.asar "${TARGETDIR}/electron/resources" && \
+    chmod 755 "${TARGETDIR}/electron/crashplan" && \
+    # Keep a copy of the default config.
+    mv ${TARGETDIR}/conf /defaults/conf && \
+    cp crashplan-install/scripts/run.conf /defaults/ && \
+    # Make sure the UI connects by default to the engine using the loopback IP address (127.0.0.1).
+    sed-patch '/<orgType>BUSINESS<\/orgType>/a \\t<serviceUIConfig>\n\t\t<serviceHost>127.0.0.1<\/serviceHost>\n\t<\/serviceUIConfig>' /defaults/conf/default.service.xml && \
+    # Set manifest directory to default config.  It should not be used, but do like the install script.
+    sed-patch "s|<backupConfig>|<backupConfig>\n\t\t\t<manifestPath>/usr/local/var/crashplan</manifestPath>|g" /defaults/conf/default.service.xml && \
+    mkdir -p /usr/local/var/crashplan && \
+    # Prevent automatic updates.
+    rm -r ${TARGETDIR}/upgrade && \
+    touch ${TARGETDIR}/upgrade && chmod 400 ${TARGETDIR}/upgrade && \
+    # The configuration directory should be stored outside the container.
+    ln -s /config/conf $TARGETDIR/conf && \
+    # The run.conf file should be stored outside the container.
+    ln -s /config/bin/run.conf $TARGETDIR/bin/run.conf && \
+    # The cache directory should be stored outside the container.
+    ln -s /config/cache $TARGETDIR/cache && \
+    # The log directory should be stored outside the container.
+    rm -r $TARGETDIR/log && \
+    ln -s /config/log $TARGETDIR/log && \
+    # The '/var/lib/crashplan' directory should be stored outside the container.
+    ln -s /config/var /var/lib/crashplan && \
+    # The '/repository' directory should be stored outside the container.
+    # NOTE: The '/repository/metadata' directory changed in 6.7.0 changed to '/usr/local/crashplan/metadata' in 6.7.1.
+    ln -s /config/repository/metadata ${TARGETDIR}/metadata && \
+    # Download and install the JRE.
+    echo "Installing JRE..." && \
+    source crashplan-install/install.defaults && \
+    curl -# -L ${JRE_X64_DOWNLOAD_URL} | tar -xz -C ${TARGETDIR} && \
+    chown -R root:root ${TARGETDIR}/jre && \
+    # Cleanup
+    del-pkg build-dependencies && \
+    rm -rf /tmp/*
+
+# Misc adjustments.
+RUN  \
+    # Remove the 'nobody' user.  This is to avoid issue when the container is running under ID 65534.
+    sed-patch '/^nobody:/d' /defaults/passwd && \
+    sed-patch '/^nobody:/d' /defaults/group && \
+    sed-patch '/^nobody:/d' /defaults/shadow && \
+    # Clear stuff from /etc/fstab to avoid showing irrelevant devices in the open file dialog window.
+    echo > /etc/fstab && \
+    # Save the current CrashPlan version.
+    echo "${CRASHPLANPRO_VERSION}" > /defaults/cp_version
+
+# Install dependencies.
+RUN \
+    add-pkg libselinux --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing && \
+    add-pkg \
+    gtk+3.0 \
+    libxscrnsaver \
+    nss \
+    eudev \
+    gconf \
+    # The following package is used to send key presses to the X process.
+    xdotool \
+    # For the monitor.
+    yad \
+    bc
+
+# Adjust the openbox config.
+RUN \
+    # Maximize only the main/initial window.
+    sed-patch 's/<application type="normal">/<application type="normal" title="Code42">/' \
+    /etc/xdg/openbox/rc.xml && \
+    # Make sure the main window is always in the background.
+    sed-patch '/<application type="normal" title="Code42">/a \    <layer>below</layer>' \
+    /etc/xdg/openbox/rc.xml
+
+# Enable log monitoring.
+RUN \
+    sed-patch 's|LOG_FILES=|LOG_FILES=/config/log/service.log.0|' /etc/logmonitor/logmonitor.conf && \
+    sed-patch 's|STATUS_FILES=|STATUS_FILES=/config/log/app.log|' /etc/logmonitor/logmonitor.conf
+
+# Generate and install favicons.
+RUN \
+    APP_ICON_URL=https://github.com/jlesage/docker-templates/raw/master/jlesage/images/crashplan-pro-icon.png && \
+    install_app_icon.sh "$APP_ICON_URL"
+
+# Add files.
+COPY rootfs/ /
+
+# Set environment variables.
+ENV S6_WAIT_FOR_SERVICE_MAXTIME=10000 \
+    APP_NAME="CrashPlan for Small Business" \
+    KEEP_APP_RUNNING=1 \
+    CRASHPLAN_DIR=${TARGETDIR} \
+    JAVACOMMON="${TARGETDIR}/jre/bin/java"
+
+# Define mountable directories.
+VOLUME ["/config"]
+VOLUME ["/volume1"]
+
 # Metadata.
 LABEL \
     org.label-schema.name="crashplan-pro" \
     org.label-schema.description="Docker container for CrashPlan PRO" \
     org.label-schema.version="unknown" \
-    org.label-schema.vcs-url="https://github.com/fjacquet/crashplan-pro" \
+    org.label-schema.vcs-url="https://github.com/fjacquet/docker-crashplan-pro" \
     org.label-schema.schema-version="1.0"
-
-# Define software versions
-ARG CRASHPLANPRO_VERSION=6.7.1
-ARG CRASHPLANPRO_TIMESTAMP=1512021600671
-ARG CRASHPLANPRO_BUILD=4615
-
-# Define software download URLs
-ARG CRASHPLANPRO_URL=https://web-eam-msp.crashplanpro.com/client/installers/CrashPlanSmb_${CRASHPLANPRO_VERSION}_${CRASHPLANPRO_TIMESTAMP}_${CRASHPLANPRO_BUILD}_Linux.tgz
-# Define container build variables
-ARG TARGETDIR=/usr/local/crashplan
-# Define mountable directories.
-VOLUME ["/config"]
-VOLUME ["/volume1"]
-EXPOSE 6080
-
-COPY crashplan-pro.sh /crashplan-pro.sh
-COPY startup.sh /startup.sh
-
-ENV DEBIAN_FRONTEND noninteractive 
-ENV APP_NAME="CrashPlan for Small Business" 
-ENV KEEP_APP_RUNNING=1 
-ENV CRASHPLAN_DIR="${TARGETDIR}"
-ENV JAVACOMMON="${TARGETDIR}/jre/bin/java"
-ENV PATH="${TARGETDIR}/electron/:${PATH}"
-ENV USER_ID=1021 
-ENV GROUP_ID=101 
-
-WORKDIR /root
-
-RUN \
-    chmod 0755 /startup.sh && \
-    apt-get update -y && \
-    apt-get install -y  git x11vnc python python-numpy unzip xvfb openbox cpio curl sed libgconf2-4 net-tools openjdk-8-jdk  && \
-    apt-get autoclean && \
-    apt-get autoremove && \
-    rm -rf /var/lib/apt/lists/*
-
-RUN git clone "https://github.com/kanaka/noVNC.git" 
-WORKDIR /root/noVNC/utils 
-RUN git clone "https://github.com/kanaka/websockify" websockify 
-
-WORKDIR /tmp
-# Installing CrashPlanSmb_${CRASHPLANPRO_VERSION}...
-RUN  \
-    curl -# -L "${CRASHPLANPRO_URL}" | tar -xz && \
-    mkdir -p "${TARGETDIR}" 
-
-# Installing JRE...
-
-RUN . "/tmp/crashplan-install/install.defaults" && \
-    curl -# -L "$JRE_X64_DOWNLOAD_URL" | tar -xz -C "$TARGETDIR" && \
-    chown -R root:root "$TARGETDIR/jre"
-
-WORKDIR /usr/local/crashplan
-
-RUN mv "/tmp/crashplan-install/CrashPlanSmb_${CRASHPLANPRO_VERSION}.cpi" "/tmp/crashplan-install/CrashPlanSmb_${CRASHPLANPRO_VERSION}.cpio.gz" && \
-    gunzip "/tmp/crashplan-install/CrashPlanSmb_${CRASHPLANPRO_VERSION}.cpio.gz"  && \
-    cpio -i --verbose --no-preserve-owner <  "/tmp/crashplan-install/CrashPlanSmb_${CRASHPLANPRO_VERSION}.cpio" && \
-    mv "${TARGETDIR}/app.asar" "${TARGETDIR}/electron/resources" && \
-    chmod 755 "${TARGETDIR}/electron/crashplan"
-
-RUN \
-    mv "${TARGETDIR}/conf" /etc/conf && \
-    cp /tmp/crashplan-install/scripts/run.conf /etc && \
-    sed -i '/<orgType>BUSINESS<\/orgType>/a \\t<serviceUIConfig>\n\t\t<serviceHost>127.0.0.1<\/serviceHost>\n\t<\/serviceUIConfig>' /etc/conf/default.service.xml && \
-    sed -i 's|<backupConfig>|<backupConfig>\n\t\t\t<manifestPath>/usr/local/var/crashplan</manifestPath>|g' /etc/conf/default.service.xml && \
-    mkdir -p /usr/local/var/crashplan && \
-    rm -r /usr/local/crashplan/upgrade && \
-    touch /usr/local/crashplan/upgrade && chmod 400 /usr/local/crashplan/upgrade && \
-    ln -s /config/conf "${TARGETDIR}/conf" && \
-    ln -s /config/bin/run.conf "${TARGETDIR}/bin/run.conf" && \
-    ln -s /config/cache "${TARGETDIR}/cache" && \
-    rm -r "${TARGETDIR}/log" && \
-    ln -s /config/log "${TARGETDIR}/log" && \
-    ln -s /config/var /var/lib/crashplan && \
-    ln -s /config/repository/metadata /usr/local/crashplan/metadata && \
-    sed -i '/^nobody:/d' /etc/passwd && \
-    sed -i '/^nobody:/d' /etc/group && \
-    sed -i '/^nobody:/d' /etc/shadow && \
-    echo > /etc/fstab && \
-    rm /etc/machine-id && \
-    ln -s /config/machine-id /etc/machine-id && \
-    echo "${CRASHPLANPRO_VERSION}" > /etc/cp_version && \
-    rm -rf "/tmp/*" 
-
-CMD ["/startup.sh"]
